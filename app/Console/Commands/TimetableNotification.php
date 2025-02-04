@@ -1,13 +1,15 @@
 <?php
- 
+
 namespace App\Console\Commands;
- 
+
+use App\Mail\Timetable;
 use Illuminate\Console\Command;
 use Carbon\CarbonImmutable;
- 
- 
+
+
 use Illuminate\Support\Facades\Http;
- 
+use Illuminate\Support\Facades\Mail;
+
 class TimetableNotification extends Command
 {
     /**
@@ -16,14 +18,14 @@ class TimetableNotification extends Command
      * @var string
      */
     protected $signature = 'app:timetable-notification';
- 
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Command description';
- 
+
     /**
      * Execute the console command.
      */
@@ -35,22 +37,26 @@ class TimetableNotification extends Command
         'thru' => now()->endOfWeek()->toIsoString(),
         'studentGroups' => '7596',
     ]);
- 
+
     $data = collect($response->json()['timetableEvents'])
-        ->groupBy(fn($entry) => CarbonImmutable::parse(data_get($entry, 'date'))->format('Y-m-d'))
-        ->transform(function($group){
-            $entries = $group->map(fn($entry) => [
+        ->transform(function($entry){
+            return [
                 'name' => data_get($entry, 'nameEt'),
                 'date' => CarbonImmutable::parse(data_get($entry, 'date'))->format('Y-m-d'),
                 'room' => data_get($entry, 'rooms.0.roomCode'),
                 'teacher' => data_get($entry, 'teachers.0.name'),
                 'time_start' => data_get($entry, 'timeStart'),
                 'time_end' => data_get($entry, 'timeEnd'),
-            ]);
-            return $entries->sortBy('time_start')
-            ->values();
-        });
-        return $data;
-}
- 
+            ];
+        })
+        ->sortBy(function($entry) {
+            return [$entry['date'], $entry['time_start']];
+        })
+        ->values();
+
+    //return $data;
+    Mail::to('test@test.ee')->send(new Timetable($data));
+
+    }
+
 }

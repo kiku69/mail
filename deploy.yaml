@@ -1,0 +1,32 @@
+import:
+  - recipe/laravel.php
+
+config:
+  repository: 'git@github.com:RemoSpys/laravelemail.git'
+  keep_releases: 2
+
+hosts:
+  stage:
+    hostname: 'tak23tammela.itmajakas.ee'
+    http_user: virt124166
+    remote_user: virt124166
+    deploy_path: '~/domeenid/www.tak23tammela.itmajakas.ee/tunniplaan'
+
+tasks:
+
+  opcache:clear:
+    - run: killall php83-cgi || true
+
+  deploy:
+    - 'deploy:prepare'
+    - 'deploy:vendors'
+    - 'artisan:storage:link'
+    - 'artisan:optimize:clear'
+    - 'artisan:optimize'
+    - 'deploy:publish'
+
+after:
+  deploy:failed: deploy:unlock
+
+before:
+  deploy:success: opcache:clear
