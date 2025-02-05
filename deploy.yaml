@@ -2,15 +2,15 @@ import:
   - recipe/laravel.php
 
 config:
-  repository: 'git@github.com:RemoSpys/laravelemail.git'
+  repository: 'git@github.com:kiku69/email.git'
   keep_releases: 2
 
 hosts:
   stage:
-    hostname: 'tak23tammela.itmajakas.ee'
-    http_user: virt124166
-    remote_user: virt124166
-    deploy_path: '~/domeenid/www.tak23tammela.itmajakas.ee/tunniplaan'
+    hostname: 'tak23mere.itmajakas.ee'
+    http_user: virt124164
+    remote_user: virt124164
+    deploy_path: '~/domeenid/www.tak23mere.itmajakas.ee/tunniplaan'
 
 tasks:
 
